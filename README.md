@@ -1,4 +1,4 @@
-# 🏔️ Homeward Trail
+# 🏔️ CO-Home Bound
 
 **Run home across Colorful Colorado.**
 
@@ -6,7 +6,7 @@ Clover the rabbit, Maple the moose and Barry the bear have wandered a long way f
 
 The game is built to inform as much as to entertain. Along the road you pass six real Colorado nonprofits that protect animals, each with its own highway exit sign and a short card about its work, and the run ends with a showcase that links to all of them.
 
-**▶️ Play it:** https://namoos99.github.io/homeward-trail/
+**▶️ Play it:** https://namoos99.github.io/co-home-bound/
 
 <p>
   <img src="docs/screenshots/menu.jpg" width="49%" alt="Main menu with the three runners">
@@ -45,7 +45,7 @@ The game is built to inform as much as to entertain. Along the road you pass six
 | [Greenwood Wildlife Rehabilitation Center](https://www.greenwoodwildlife.org) | Lyons & Longmont | Care for orphaned, injured and sick wildlife from 200+ species |
 | [Rocky Mountain Wild](https://rockymountainwild.org) | Denver | Protecting wildlife habitat and planning safe crossings over I-70 |
 
-Homeward Trail isn't affiliated with these organizations. Their names are used only to point players toward their work, and no logos are used.
+CO-Home Bound isn't affiliated with these organizations. Their names are used only to point players toward their work, and no logos are used.
 
 ## Run it locally
 
