@@ -26,6 +26,10 @@ Landmarks like Red Rocks need open space around them. Hiding nearby props at the
 
 In play-testing, the "Farmland" banner showed up while the screen still showed downtown. Props used to take on whatever stage the player was in when they were placed far ahead. Now each prop is dressed for the stage at the exact spot where it will stand, and sky and ground colours blend over a short stretch around each border, so the new area begins at its welcome sign.
 
+### Why does Red Rocks look like a travel poster instead of a scale model?
+
+An earlier version modelled the real bowl closely (long curved rows between two huge monoliths, raised up on a hill), but from a runner's-eye view it read as a wall of rock and it sat too far from the road. Play-testers responded to the classic poster look instead: one enormous layered slab behind straight terraces of red benches, a red-roofed stage right by the road, round green trees and a packed crowd. The band is four cartoon musicians (singer, guitarist, bassist and a drummer on a riser) with modern hair and hats, deliberately unlike the single long-haired guitarist on many posters. Only the venue's own footprint is cleared of scenery, so the red rocks on the approach stay put.
+
 ### How are the nonprofits presented, and why that way?
 
 The goal is to inform without lecturing or slowing the game down. Each nonprofit gets a highway-style exit sign placed where it makes geographic sense (for example, The Wild Animal Sanctuary on the plains near Keenesburg), and a short card appears for nine seconds as you pass. The full showcase comes after the reunion, when the player has time to read. Descriptions were checked against public sources, only names are used (no logos), and there's a clear non-affiliation note.

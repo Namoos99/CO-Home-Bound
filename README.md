@@ -11,15 +11,15 @@ The game is built to inform as much as to entertain. Along the road you pass six
 <p>
   <img src="docs/screenshots/menu.jpg" width="49%" alt="Main menu with the three runners">
   <img src="docs/screenshots/capitol.jpg" width="49%" alt="Running past the Colorado State Capitol">
-  <img src="docs/screenshots/red-rocks-poster.jpg" width="49%" alt="Red Rocks Amphitheatre with a cheering crowd">
-  <img src="docs/screenshots/bigfoot.jpg" width="49%" alt="A friendly Bigfoot waving from the aspens">
+  <img src="docs/screenshots/red-rocks-poster.jpg" width="49%" alt="Red Rocks Amphitheatre with a band and a cheering crowd">
+  <img src="docs/screenshots/bigfoot.jpg" width="49%" alt="A shy Bigfoot peeking out from behind an aspen">
   <img src="docs/screenshots/reunion.jpg" width="49%" alt="The three friends reunited at the picnic">
   <img src="docs/screenshots/helpers.jpg" width="49%" alt="Showcase of Colorado animal nonprofits">
 </p>
 
 ## What's on the trail
 
-- **Five Colorado stages** that change right at their welcome signs: Denver (with the gold-domed State Capitol), the Eastern Plains, the Aspen Forest (say hi to Bigfoot), Red Rocks (a crowd cheers you on from the amphitheatre) and the Rocky Mountains over Loveland Pass.
+- **Five Colorado stages** that change right at their welcome signs: Denver (with the gold-domed State Capitol), the Eastern Plains, the Aspen Forest (where a shy Bigfoot in red sneakers peeks out from behind an aspen and waves), Red Rocks (a four-piece band plays and a packed amphitheatre cheers you by name) and the Rocky Mountains over Loveland Pass.
 - **Three runners, three snacks:** Clover gathers carrots, Maple gathers leaves, Barry gathers berries. A sparkle gem pulls snacks toward you for a few seconds.
 - **Fair difficulty:** the pace rises gently, and every obstacle pattern is built to leave an escape route (see [DECISIONS.md](DECISIONS.md)).
 - **Everything is made in code:** the 3D models, textures, music, sound effects and the little cartoon voices are all generated at runtime. There are no image or audio files.

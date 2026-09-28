@@ -2058,7 +2058,7 @@ function makeCrowd(spots) {
       d.rotation.set(0, p.yaw, Math.sin(t * 6 + p.ph) * 0.35 * ex); d.scale.set(1, 0.25 + 0.75 * ex, 1); d.updateMatrix(); arms.setMatrixAt(i, d.matrix);
     }
     for (const m of meshes) m.instanceMatrix.needsUpdate = true;
-    if (this.strum) this.strum.rotation.x = Math.sin(t * 14) * 0.5;
+    if (this.band) this.band(t, ex);
   } };
   crowd.update(0);
   return crowd;
@@ -2128,12 +2128,98 @@ function makeSeatedCrowd(spots) {
       d.rotation.set(0, p.yaw, Math.sin(t * 6 + p.ph) * 0.35 * ex); d.scale.set(1, 0.2 + 0.8 * ex, 1); d.updateMatrix(); arms.setMatrixAt(i, d.matrix);
     }
     for (const m of meshes) m.instanceMatrix.needsUpdate = true;
-    if (this.strum) this.strum.rotation.x = Math.sin(t * 14) * 0.5;
+    if (this.band) this.band(t, ex);
   } };
   crowd.update(0);
   return crowd;
 }
 // Everything faces local -x: that side is turned toward the road and the runner coming up it.
+// ---- The band: cartoon musicians with instruments (clean-shaven, short or tied-back hair, bright tees)
+function makeBandMember(o) {
+  const g = new THREE.Group();
+  const add = (p, geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); p.add(m); return m; };
+  const skin = std(o.skin), shirt = std(o.shirt), pants = std(o.pants), shoe = std(0xfbf6ea), hairM = std(o.hairCol),
+    ink = new THREE.MeshBasicMaterial({ color: 0x2a1a12 }), blush = new THREE.MeshBasicMaterial({ color: 0xf29a93, transparent: true, opacity: 0.7 });
+  for (const sd of [-1, 1]) {
+    add(g, new THREE.CylinderGeometry(0.12, 0.12, 0.72, 8), pants, sd * 0.14, 0.36, 0);
+    add(g, new THREE.BoxGeometry(0.2, 0.11, 0.34), shoe, sd * 0.14, 0.05, -0.06);
+  }
+  add(g, new THREE.CylinderGeometry(0.29, 0.33, 0.78, 12), shirt, 0, 1.1, 0);
+  const head = new THREE.Group(); head.position.y = 1.72; g.add(head);
+  add(head, new THREE.SphereGeometry(0.3, 16, 12), skin, 0, 0, 0);
+  for (const sd of [-1, 1]) {
+    add(head, new THREE.SphereGeometry(0.04, 8, 6), ink, sd * 0.1, 0.02, -0.27);
+    const c = add(head, new THREE.SphereGeometry(0.05, 8, 6), blush, sd * 0.17, -0.07, -0.23); c.scale.set(1, 0.6, 0.4);
+  }
+  const sm = add(head, new THREE.TorusGeometry(0.06, 0.013, 5, 10, Math.PI), ink, 0, -0.09, -0.27); sm.rotation.z = Math.PI;
+  // hair and hats
+  const cap = (col, thetaL) => { const h = add(head, new THREE.SphereGeometry(0.315, 16, 10, 0, Math.PI * 2, 0, Math.PI * thetaL), std(col), 0, 0.01, 0.02); h.rotation.x = 0.25; return h; };
+  if (o.hair === 'bun') { cap(o.hairCol, 0.45); add(head, new THREE.SphereGeometry(0.13, 10, 8), hairM, 0, 0.28, 0.2); }
+  else if (o.hair === 'cap') { cap(o.hatCol, 0.42); const brim = add(head, new THREE.BoxGeometry(0.34, 0.03, 0.26), std(o.hatCol), 0, 0.12, 0.34); brim.rotation.x = -0.15; add(head, new THREE.BoxGeometry(0.5, 0.08, 0.2), hairM, 0, -0.02, 0.2); }
+  else if (o.hair === 'beanie') { cap(o.hatCol, 0.5); const rim = add(head, new THREE.TorusGeometry(0.29, 0.05, 6, 20), std(o.hatCol), 0, 0.07, 0.02); rim.rotation.x = Math.PI / 2 + 0.25; add(head, new THREE.SphereGeometry(0.08, 8, 6), std(0xfbf1dc), 0, 0.34, 0.08); }
+  else { cap(o.hairCol, 0.4); for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; add(head, new THREE.SphereGeometry(0.1, 8, 6), hairM, Math.cos(a) * 0.22, 0.2, Math.sin(a) * 0.22 + 0.03); } }
+  // arms hang from the shoulders; each musician poses them for their instrument
+  const arm = (sd) => { const a = new THREE.Group(); a.position.set(sd * 0.36, 1.42, 0); g.add(a); add(a, new THREE.CylinderGeometry(0.085, 0.08, 0.55, 8), shirt === null ? skin : skin, 0, -0.27, 0); add(a, new THREE.SphereGeometry(0.1, 8, 6), skin, 0, -0.56, 0); add(a, new THREE.CylinderGeometry(0.1, 0.1, 0.18, 8), shirt, 0, -0.05, 0); return a; };
+  return { g, head, armL: arm(-1), armR: arm(1), add };
+}
+function makeGuitar(col, bass) {
+  const gu = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.28, 14, 10), std(col)); body.scale.set(1, 1.2, 0.32); gu.add(body);
+  const low = new THREE.Mesh(new THREE.SphereGeometry(0.33, 14, 10), std(col)); low.scale.set(1, 1, 0.32); low.position.y = -0.22; gu.add(low);
+  const guard = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), std(0xfbf1dc)); guard.scale.set(1, 1, 0.3); guard.position.set(0.08, -0.2, -0.05); gu.add(guard);
+  const neck = new THREE.Mesh(new THREE.BoxGeometry(0.08, bass ? 1.1 : 0.85, 0.05), std(0x6b4a3a)); neck.position.y = bass ? 0.75 : 0.62; gu.add(neck);
+  const headstock = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.2, 0.05), std(0x3a2a22)); headstock.position.y = bass ? 1.38 : 1.12; gu.add(headstock);
+  return gu;
+}
+function makeBand() {
+  const group = new THREE.Group(), members = [];
+  const face = (m) => { m.g.rotation.y = Math.PI / 2; };     // everyone faces the road
+  // singer at the front with a mic stand
+  const singer = makeBandMember({ skin: 0xc98e66, shirt: 0x2f9e8f, pants: 0x2e3552, hair: 'bun', hairCol: 0x2a1d17 });
+  singer.g.position.set(-1.55, 0, -0.9); face(singer); group.add(singer.g);
+  const stand = new THREE.Group(); stand.position.set(0, 0, -0.55); singer.g.add(stand);
+  singer.add(stand, new THREE.CylinderGeometry(0.025, 0.025, 1.55, 6), std(0x3a3a3a), 0, 0.78, 0);
+  singer.add(stand, new THREE.CylinderGeometry(0.18, 0.2, 0.04, 12), std(0x3a3a3a), 0, 0.02, 0);
+  singer.add(stand, new THREE.SphereGeometry(0.075, 10, 8), std(0x5a5a5a), 0, 1.6, 0.05);
+  singer.armR.rotation.set(-2.2, 0, 0.1);
+  // guitarist and bassist either side
+  const gtr = makeBandMember({ skin: 0xf6d5b8, shirt: 0xd9574b, pants: 0x3a3f58, hair: 'cap', hairCol: 0x6b4430, hatCol: 0xf2c14e });
+  gtr.g.position.set(-0.7, 0, -2.6); face(gtr); group.add(gtr.g);
+  const guitar = makeGuitar(0xe0703a, false); guitar.position.set(0.02, 1.0, -0.34); guitar.rotation.z = 0.95; gtr.g.add(guitar);
+  gtr.armL.rotation.set(-1.1, 0, 0.9); gtr.armR.rotation.set(-0.6, 0, -0.2);
+  const bs = makeBandMember({ skin: 0x6b4430, shirt: 0x7a5cc4, pants: 0x2e3552, hair: 'curly', hairCol: 0x2a1d17 });
+  bs.g.position.set(-0.7, 0, 2.6); face(bs); group.add(bs.g);
+  const bass = makeGuitar(0x4f86c6, true); bass.position.set(0.02, 1.0, -0.34); bass.rotation.z = 0.95; bs.g.add(bass);
+  bs.armL.rotation.set(-1.25, 0, 0.95); bs.armR.rotation.set(-0.6, 0, -0.2);
+  // drummer behind a kit
+  const dr = makeBandMember({ skin: 0xe8b894, shirt: 0x5fa05a, pants: 0x3a3f58, hair: 'beanie', hairCol: 0x6b4430, hatCol: 0xe8843a });
+  const riser = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.45, 2.6), std(0x8a5a3c)); riser.position.set(0.55, 0.22, 1.1); group.add(riser);
+  dr.g.position.set(1.0, 0.3, 1.1); face(dr); group.add(dr.g);
+  const kit = new THREE.Group(); kit.position.set(0.15, 0.45, 1.1); kit.rotation.y = Math.PI / 2; group.add(kit);
+  const kd = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.4, 20), [std(0xd9574b), std(0xfbf1dc), std(0xfbf1dc)]); kd.rotation.x = Math.PI / 2; kd.position.set(0, 0.48, 0); kit.add(kd);
+  const snare = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.16, 14), std(0xd8d2c6)); snare.position.set(-0.45, 0.85, 0.25); kit.add(snare);
+  const tom = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.18, 14), std(0xd9574b)); tom.position.set(0.2, 1.02, 0.1); tom.rotation.x = 0.35; kit.add(tom);
+  for (const sd of [-1, 1]) {
+    const st = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.2, 5), std(0x3a3a3a)); st.position.set(sd * 0.72, 0.6, 0.15); kit.add(st);
+    const cy = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.02, 16), std(0xe9b949, { emissive: new THREE.Color(0x3a2a08) })); cy.position.set(sd * 0.72, 1.22, 0.15); cy.rotation.x = 0.25; kit.add(cy);
+  }
+  dr.armL.rotation.set(-1.0, 0, 0.25); dr.armR.rotation.set(-1.0, 0, -0.25);
+  for (const a of [dr.armL, dr.armR]) { const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 5), std(0xe3cfa8)); stick.position.set(0, -0.6, -0.2); stick.rotation.x = -1.2; a.add(stick); }
+  members.push(singer, gtr, bs, dr);
+  const update = (t, ex) => {
+    const e = 0.35 + 0.65 * ex;
+    members.forEach((m, i) => { m.head.rotation.x = Math.sin(t * 8 + i) * 0.12 * e; m.g.position.y = (i === 3 ? 0.3 : 0) + Math.abs(Math.sin(t * 4 + i)) * 0.05 * e; });
+    singer.armL.rotation.set(-2.6 - Math.sin(t * 5) * 0.3 * e, 0, -0.3);                  // fist pumping to the crowd
+    gtr.armR.rotation.x = -0.6 + Math.sin(t * 16) * 0.35 * e;                             // strumming
+    bs.armR.rotation.x = -0.6 + Math.sin(t * 12 + 1) * 0.3 * e;
+    dr.armL.rotation.x = -1.0 + Math.max(0, Math.sin(t * 14)) * 0.6 * e;                  // drumming
+    dr.armR.rotation.x = -1.0 + Math.max(0, Math.sin(t * 14 + Math.PI)) * 0.6 * e;
+  };
+  update(0, 0);
+  group.traverse(m => { if (m.isMesh) m.castShadow = true; });
+  addOutline(group, 0.025);
+  return { group, update };
+}
 function makeAmphitheatre(runnerName) {
   const g = new THREE.Group();
   // warm red earth under the whole venue, with green grass around the edges
@@ -2181,22 +2267,14 @@ function makeAmphitheatre(runnerName) {
   });
   const cream = std(0xefd9b0);
   const back = new THREE.Mesh(new THREE.BoxGeometry(0.35, 3.8, 7.6), [cream, std(0xffffff, { map: wallTex }), cream, cream, cream, cream]); back.position.set(1.6, 2.5, 0); g.add(back);
-  // the musician, facing the road and serenading the runner
-  const musician = new THREE.Group(); musician.position.set(-0.7, 0.6, 0); musician.rotation.y = Math.PI / 2; g.add(musician);
-  const mb = new THREE.Mesh(crowdBodyGeo, std(0xf2c14e)); mb.scale.setScalar(1.6); musician.add(mb);
-  const mh = new THREE.Mesh(crowdHeadGeo, std(0xe8b894)); mh.scale.setScalar(1.6); musician.add(mh);
-  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.55), std(0x6b4430)); hair.position.set(0, 1.55, 0.04); musician.add(hair);
-  for (const sd of [-1, 1]) { const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.6, 6), std(0x3f5a8a)); leg.position.set(sd * 0.16, -0.22, 0); musician.add(leg); }
-  const guitar = new THREE.Group(); guitar.position.set(0, 0.68, -0.4); guitar.rotation.z = 0.6; musician.add(guitar);
-  const gb = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 8), std(0xd0843a)); gb.scale.set(1, 1.2, 0.35); guitar.add(gb);
-  const neck = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.95, 0.06), std(0x5b3a2e)); neck.position.y = 0.72; guitar.add(neck);
-  const strum = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.52, 6), std(0xf2c14e)); strum.geometry.translate(0, -0.26, 0); strum.position.set(0.3, 1.0, -0.2); musician.add(strum);
+  // a four-piece band, facing the road and playing for the runner
+  const band = makeBand(); band.group.position.set(0, 0.6, 0); g.add(band.group);
   // round green trees, poster style
   for (const [x, z, sc] of [[-2.5, -8.5, 1.15], [-2.5, 8.5, 1.2], [6, -15, 1.3], [8, 15.5, 1.35], [24, -22, 1.2], [26, 23, 1.3], [36, 17, 1.1]]) { const t = roundTree(sc); t.position.set(x, 0, z); g.add(t); }
   g.traverse(m => { if (m.isMesh) m.castShadow = true; });
   addOutline(g, 0.05);
   const crowd = makeSeatedCrowd(spots); crowd.meshes.forEach(m => g.add(m));
-  crowd.strum = strum;
+  crowd.band = band.update;
   g.userData.crowd = crowd;
   return g;
 }
@@ -2260,17 +2338,18 @@ function makeBigfoot() {
       legs[0].rotation.x = s * 0.5 * w; legs[1].rotation.x = -s * 0.5 * w;
       arms[0].rotation.x = -s * 0.45 * w; arms[1].rotation.x = s * 0.45 * w;
       arms[0].rotation.z = -0.08; arms[1].rotation.z = 0.08 + this.wave * (2.7 + Math.sin(G.time * 9) * 0.3);
-      body.position.y = 1.55 + Math.abs(Math.cos(this.phase)) * 0.08 * w; body.rotation.z = this.wave * Math.sin(G.time * 3) * 0.05;
+      body.position.y = 1.55 + Math.abs(Math.cos(this.phase)) * 0.08 * w; body.rotation.z = (this.lean || 0) + this.wave * Math.sin(G.time * 3) * 0.05;
       head.rotation.y = this.wave * Math.sin(G.time * 1.5) * 0.12;
     } };
   bf.pose(0, false);
   return bf;
 }
 function spawnBigfoot(l, z) {
-  // Bigfoot stands beside a big aspen at the edge of the road, turned toward the runner, waving
-  const side = l.side, outer = new THREE.Group(), ox = side * 9.6;
-  const tree = makeAspen(); tree.scale.setScalar(2.2); tree.position.set(side * 3.6, 0, -1.8); recolorAspen(tree); outer.add(tree);
-  const bf = makeBigfoot(); bf.g.scale.setScalar(1.35); bf.g.position.set(0, 0, 0); bf.g.rotation.y = Math.PI; outer.add(bf.g);
+  // Bigfoot hides behind a big old aspen by the road, peeking round the trunk toward the runner and waving
+  const side = l.side, outer = new THREE.Group(), ox = side * 10.2;
+  const tree = makeAspen(); tree.scale.set(3.6, 2.3, 3.6); tree.position.set(side * 0.45, 0, 1.25); recolorAspen(tree); outer.add(tree);
+  const tree2 = makeAspen(); tree2.scale.setScalar(1.8); tree2.position.set(side * 3.8, 0, -2.6); outer.add(tree2);
+  const bf = makeBigfoot(); bf.g.scale.setScalar(1.35); bf.g.position.set(-side * 0.35, 0, -0.4); bf.g.rotation.y = Math.PI; bf.lean = -0.2; outer.add(bf.g);
   // a few big footprints show where he stepped out of the trees
   const printMat = std(0x8b6b4c);
   for (let i = 0; i < 4; i++) {
@@ -2320,7 +2399,7 @@ function spawnSetPiece(l, z) {
   } else {
     ox = side * 15; big = 60;
     const amph = makeAmphitheatre(CHARACTERS[charKind].name); amph.rotation.y = side > 0 ? 0.64 : Math.PI - 0.64; outer.add(amph); crowd = amph.userData.crowd;   // stage by the road, rows and rock rising behind
-    const sign = makeRoadSign({ kind: 'place', side, lines: ['WELCOME TO', 'RED ROCKS', 'Morrison, Colorado'] }); sign.position.set(side * 8.3 - ox, 0, 34); outer.add(sign);
+    const sign = makeRoadSign({ kind: 'place', side, lines: ['WELCOME TO', 'RED ROCKS', 'Morrison, Colorado'] }); sign.position.set(side * 8.3 - ox, 0, 58); outer.add(sign);
   }
   outer.traverse(m => { if (m.isMesh && !m.userData.isOutline) m.castShadow = true; });
   return addObstacle({ type: 'deco', lane: -1, x: ox, z, len: 90, hw: -99, yMin: 0, yMax: 0, group: outer, info: null, shown: false, big, infoAt: -45, crowd });
@@ -2658,6 +2737,12 @@ const Sound = (() => {
       seq.forEach((m, i) => tone({ at: t + i * 0.13, f: mtof(m), type: 'triangle', d: 0.3, v: 0.14 }));
     },
     click() { tone({ f: 880, type: 'triangle', d: 0.05, v: 0.08 }); },
+    riff() {
+      if (!ctx) return; const t = ctx.currentTime + 0.05;
+      const seq = [[40, 0], [40, 0.18], [43, 0.36], [45, 0.54], [40, 0.9], [48, 1.08], [47, 1.26], [45, 1.44]];
+      for (const [m, dt] of seq) for (const iv of [0, 7, 12]) tone({ at: t + dt, f: mtof(m + iv), type: 'sawtooth', lp: 1500, a: 0.01, d: 0.2, v: 0.045 });
+      for (let i = 0; i < 8; i++) { noise({ at: t + i * 0.2, ft: 'lowpass', f: 180, d: 0.12, v: 0.25 }); if (i % 2) noise({ at: t + i * 0.2, ft: 'highpass', f: 2500, d: 0.08, v: 0.08 }); }
+    },
     crowd() {
       if (!ctx) return; const t = ctx.currentTime;
       noise({ at: t, ft: 'bandpass', f: 650, q: 0.45, a: 0.7, d: 3.4, v: 0.2 });
@@ -2910,7 +2995,7 @@ function updatePlaying(dt) {
       o.crowd.excite = clamp((o.z + 140) / 90, 0, 1);
       o.crowd.update(G.time);
       if (!o.cheered && o.z > -85) {
-        o.cheered = true; Sound.crowd();
+        o.cheered = true; Sound.crowd(); Sound.riff();
         showToast('Go, ' + CHARACTERS[charKind].name + ', go!');
         setTimeout(() => { if (state === 'playing') Voice.say('WOOHOO!', { force: true }); }, 1400);
       }
