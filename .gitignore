@@ -1,0 +1,14 @@
+# OS and editor clutter
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python (test script)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Logs
+*.log
