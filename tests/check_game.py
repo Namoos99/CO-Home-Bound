@@ -1,5 +1,5 @@
 """
-Automated checks for CO-Home Bound.
+Automated checks for CO-Home-Bound.
 
 Runs the game headlessly with no network (so it also proves the bundled three.js
 fallback works), then:

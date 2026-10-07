@@ -1,4 +1,4 @@
-# 🏔️ CO-Home Bound
+# 🏔️ CO-Home-Bound
 
 **Run home across Colorful Colorado.**
 
@@ -6,7 +6,7 @@ Clover the rabbit, Maple the moose and Barry the bear have wandered a long way f
 
 The game is built to inform as much as to entertain. Along the road you pass six real Colorado nonprofits that protect animals, each with its own highway exit sign and a short card about its work, and the run ends with a showcase that links to all of them.
 
-**▶️ Play it:** https://namoos99.github.io/co-home-bound/
+**▶️ Play it:** https://namoos99.github.io/CO-Home-Bound/
 
 <p>
   <img src="docs/screenshots/menu.jpg" width="49%" alt="Main menu with the three runners">
@@ -45,7 +45,7 @@ The game is built to inform as much as to entertain. Along the road you pass six
 | [Greenwood Wildlife Rehabilitation Center](https://www.greenwoodwildlife.org) | Lyons & Longmont | Care for orphaned, injured and sick wildlife from 200+ species |
 | [Rocky Mountain Wild](https://rockymountainwild.org) | Denver | Protecting wildlife habitat and planning safe crossings over I-70 |
 
-CO-Home Bound isn't affiliated with these organizations. Their names are used only to point players toward their work, and no logos are used.
+CO-Home-Bound isn't affiliated with these organizations. Their names are used only to point players toward their work, and no logos are used.
 
 ## Run it locally
 
@@ -80,3 +80,9 @@ DECISIONS.md            the design and engineering choices behind the game
 ## Built with
 
 [three.js](https://threejs.org) r128 for 3D, the Web Audio API for all music and sound, and Google Fonts (Fredoka, Patrick Hand, Nunito). The cozy, hand-drawn look takes inspiration from warm illustrated games and Colorado travel posters.
+
+## Deploy on GitHub Pages
+
+1. Push this repo to GitHub (`main` branch).
+2. Go to **Settings → Pages**, set **Source** to **GitHub Actions** (or "Deploy from a branch" → `main` / `/ (root)`).
+3. Wait 1–2 minutes, then open https://namoos99.github.io/CO-Home-Bound/

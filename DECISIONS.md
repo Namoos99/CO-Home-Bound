@@ -1,6 +1,6 @@
 # Decisions
 
-The choices behind CO-Home Bound, written as the answers I'd give if asked about them.
+The choices behind CO-Home-Bound, written as the answers I'd give if asked about them.
 
 ### Why is the whole game one HTML file with no build step?
 
